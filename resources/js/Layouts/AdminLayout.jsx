@@ -189,6 +189,7 @@ export default function AdminLayout({ children, title }) {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const mainRef = useRef(null);
     const scrollTimer = useRef(null);
+    const hideButtonTimer = useRef(null);
 
     useEffect(() => {
         setMenuOpen(false);
@@ -221,19 +222,30 @@ export default function AdminLayout({ children, title }) {
             clearTimeout(scrollTimer.current);
             scrollTimer.current = setTimeout(() => {
                 el.classList.remove('is-scrolling');
-            }, 900);
+            }, 1400);
+        };
+
+        const updateScrollTopVisibility = (scrolledFar) => {
+            clearTimeout(hideButtonTimer.current);
+            if (scrolledFar) {
+                setShowScrollTop(true);
+                return;
+            }
+            // Delay hide agar fade-out terasa lembut, bukan mendadak
+            hideButtonTimer.current = setTimeout(() => {
+                setShowScrollTop(false);
+            }, 180);
         };
 
         const onMainScroll = () => {
             if (!main) return;
-            setShowScrollTop(main.scrollTop > 240);
+            updateScrollTopVisibility(main.scrollTop > 240);
             markScrolling(main);
         };
 
         const onWindowScroll = () => {
-            // Mobile: halaman ikut scroll window
             if (window.matchMedia('(min-width: 1024px)').matches) return;
-            setShowScrollTop(window.scrollY > 240);
+            updateScrollTopVisibility(window.scrollY > 240);
             markScrolling(document.documentElement);
             markScrolling(document.body);
         };
@@ -245,6 +257,7 @@ export default function AdminLayout({ children, title }) {
             main?.removeEventListener('scroll', onMainScroll);
             window.removeEventListener('scroll', onWindowScroll);
             clearTimeout(scrollTimer.current);
+            clearTimeout(hideButtonTimer.current);
         };
     }, []);
 
@@ -370,11 +383,15 @@ export default function AdminLayout({ children, title }) {
                     type="button"
                     onClick={scrollToTop}
                     aria-label="Kembali ke atas"
-                    className={`fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-sm border border-brass/40 bg-charcoal text-brass shadow-lg transition-all duration-300 hover:bg-brass hover:text-obsidian lg:absolute lg:bottom-6 lg:right-6 ${
+                    className={`fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-sm border border-brass/40 bg-charcoal text-brass shadow-lg hover:bg-brass hover:text-obsidian lg:absolute lg:bottom-6 lg:right-6 ${
                         showScrollTop
-                            ? 'pointer-events-auto translate-y-0 opacity-100'
-                            : 'pointer-events-none translate-y-3 opacity-0'
+                            ? 'pointer-events-auto translate-y-0 scale-100 opacity-100'
+                            : 'pointer-events-none translate-y-4 scale-90 opacity-0'
                     }`}
+                    style={{
+                        transition:
+                            'opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s ease, color 0.25s ease',
+                    }}
                 >
                     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                         <path d="M12 19V5M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />

@@ -36,10 +36,11 @@
         color: var(--color-ivory);
     }
 
-    /* Scrollbar tema aplikasi */
+    /* Scrollbar tema aplikasi — fade lembut */
     * {
         scrollbar-width: thin;
         scrollbar-color: transparent transparent;
+        transition: scrollbar-color 0.45s ease;
     }
 
     *:hover,
@@ -60,24 +61,23 @@
     }
 
     *::-webkit-scrollbar-thumb {
-        background: transparent;
         border-radius: 999px;
         border: 2px solid transparent;
         background-clip: padding-box;
+        background-color: transparent;
+        transition: background-color 0.45s ease;
     }
 
     *:hover::-webkit-scrollbar-thumb,
     *:focus::-webkit-scrollbar-thumb,
     *:focus-within::-webkit-scrollbar-thumb,
     .is-scrolling::-webkit-scrollbar-thumb {
-        background: color-mix(in srgb, var(--color-brass) 55%, transparent);
-        border: 2px solid transparent;
-        background-clip: padding-box;
+        background-color: color-mix(in srgb, var(--color-brass) 55%, transparent);
     }
 
     *:hover::-webkit-scrollbar-thumb:hover,
     .is-scrolling::-webkit-scrollbar-thumb:hover {
-        background: var(--color-brass);
+        background-color: var(--color-brass);
     }
 
     *::-webkit-scrollbar-corner {
