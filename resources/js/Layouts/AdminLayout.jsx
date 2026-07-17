@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const navSections = [
     {
@@ -186,9 +186,17 @@ export default function AdminLayout({ children, title }) {
     const { auth, flash, app } = usePage().props;
     const path = typeof window !== 'undefined' ? window.location.pathname : '';
     const [menuOpen, setMenuOpen] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const mainRef = useRef(null);
+    const scrollTimer = useRef(null);
 
     useEffect(() => {
         setMenuOpen(false);
+        setShowScrollTop(false);
+        if (mainRef.current) {
+            mainRef.current.scrollTop = 0;
+        }
+        window.scrollTo(0, 0);
     }, [path]);
 
     useEffect(() => {
@@ -204,7 +212,51 @@ export default function AdminLayout({ children, title }) {
         };
     }, [menuOpen]);
 
+    useEffect(() => {
+        const main = mainRef.current;
+
+        const markScrolling = (el) => {
+            if (!el) return;
+            el.classList.add('is-scrolling');
+            clearTimeout(scrollTimer.current);
+            scrollTimer.current = setTimeout(() => {
+                el.classList.remove('is-scrolling');
+            }, 900);
+        };
+
+        const onMainScroll = () => {
+            if (!main) return;
+            setShowScrollTop(main.scrollTop > 240);
+            markScrolling(main);
+        };
+
+        const onWindowScroll = () => {
+            // Mobile: halaman ikut scroll window
+            if (window.matchMedia('(min-width: 1024px)').matches) return;
+            setShowScrollTop(window.scrollY > 240);
+            markScrolling(document.documentElement);
+            markScrolling(document.body);
+        };
+
+        main?.addEventListener('scroll', onMainScroll, { passive: true });
+        window.addEventListener('scroll', onWindowScroll, { passive: true });
+
+        return () => {
+            main?.removeEventListener('scroll', onMainScroll);
+            window.removeEventListener('scroll', onWindowScroll);
+            clearTimeout(scrollTimer.current);
+        };
+    }, []);
+
     const closeMenu = () => setMenuOpen(false);
+
+    const scrollToTop = () => {
+        if (mainRef.current && window.matchMedia('(min-width: 1024px)').matches) {
+            mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <div className="min-h-screen bg-obsidian text-ivory lg:flex lg:h-dvh lg:overflow-hidden">
@@ -263,7 +315,7 @@ export default function AdminLayout({ children, title }) {
                 </aside>
             </div>
 
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto">
+            <div ref={mainRef} className="relative flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto">
                 <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-brass/10 bg-obsidian/95 px-4 py-4 backdrop-blur-sm sm:px-6 sm:py-5">
                     <div className="flex min-w-0 items-center gap-3">
                         <button
@@ -313,6 +365,21 @@ export default function AdminLayout({ children, title }) {
                         <p className="text-mist/80">Panel Admin</p>
                     </div>
                 </footer>
+
+                <button
+                    type="button"
+                    onClick={scrollToTop}
+                    aria-label="Kembali ke atas"
+                    className={`fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-sm border border-brass/40 bg-charcoal text-brass shadow-lg transition-all duration-300 hover:bg-brass hover:text-obsidian lg:absolute lg:bottom-6 lg:right-6 ${
+                        showScrollTop
+                            ? 'pointer-events-auto translate-y-0 opacity-100'
+                            : 'pointer-events-none translate-y-3 opacity-0'
+                    }`}
+                >
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                        <path d="M12 19V5M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </button>
             </div>
         </div>
     );

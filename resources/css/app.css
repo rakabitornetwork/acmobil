@@ -35,6 +35,54 @@
         background: color-mix(in srgb, var(--color-brass) 40%, transparent);
         color: var(--color-ivory);
     }
+
+    /* Scrollbar tema aplikasi */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: transparent transparent;
+    }
+
+    *:hover,
+    *:focus,
+    *:focus-within,
+    .is-scrolling {
+        scrollbar-color: color-mix(in srgb, var(--color-brass) 55%, transparent)
+            color-mix(in srgb, var(--color-charcoal) 80%, transparent);
+    }
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: transparent;
+        border-radius: 999px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+    }
+
+    *:hover::-webkit-scrollbar-thumb,
+    *:focus::-webkit-scrollbar-thumb,
+    *:focus-within::-webkit-scrollbar-thumb,
+    .is-scrolling::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--color-brass) 55%, transparent);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+    }
+
+    *:hover::-webkit-scrollbar-thumb:hover,
+    .is-scrolling::-webkit-scrollbar-thumb:hover {
+        background: var(--color-brass);
+    }
+
+    *::-webkit-scrollbar-corner {
+        background: transparent;
+    }
 }
 
 @layer utilities {
