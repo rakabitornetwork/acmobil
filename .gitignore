@@ -1,8 +1,8 @@
 /.phpunit.cache
 /node_modules
-/public/build
 /public/hot
 /public/storage
+# Symlink Apache root → public/build (buat di server: ln -sfn public/build build)
 /build
 /storage/*.key
 /storage/pail
@@ -26,3 +26,6 @@ yarn-error.log
 /.zed
 /database/*.sqlite
 /database/*.sqlite-journal
+
+# public/build ikut di-commit agar VPS tanpa npm tetap bisa deploy.
+# Setelah ubah frontend: npm run build, lalu commit folder public/build.
