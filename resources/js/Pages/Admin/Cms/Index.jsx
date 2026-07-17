@@ -1,9 +1,21 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Field, inputClass, btnPrimary, typeLabel, ImageFileInput } from '../../../Components/ui';
+import { Field, inputClass, btnPrimary, btnGhost, typeLabel, ImageFileInput } from '../../../Components/ui';
 
 const tabs = ['Pengaturan', 'Hero & Tentang', 'Berita', 'Layanan', 'Galeri', 'Testimoni'];
+
+const emptyAnnouncement = {
+    title: '',
+    body: '',
+    type: 'info',
+    cta_label: '',
+    cta_url: '',
+    sort_order: 0,
+    is_active: true,
+    published_at: new Date().toISOString().slice(0, 10),
+    image: null,
+};
 
 function formatDate(value) {
     if (!value) return '';
@@ -18,8 +30,19 @@ function formatDate(value) {
     }
 }
 
+function toDateInput(value) {
+    if (!value) return new Date().toISOString().slice(0, 10);
+    try {
+        return new Date(value).toISOString().slice(0, 10);
+    } catch {
+        return String(value).slice(0, 10);
+    }
+}
+
 export default function CmsIndex({ settings, hero, about, services, gallery, testimonials, announcements = [] }) {
     const [tab, setTab] = useState(0);
+    const [editingAnnouncementId, setEditingAnnouncementId] = useState(null);
+    const [editingAnnouncementImage, setEditingAnnouncementImage] = useState(null);
 
     const settingsForm = useForm({
         company_name: settings.company_name || '',
@@ -49,17 +72,47 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
         image: null,
     });
 
-    const announcementForm = useForm({
-        title: '',
-        body: '',
-        type: 'info',
-        cta_label: '',
-        cta_url: '',
-        sort_order: 0,
-        is_active: true,
-        published_at: new Date().toISOString().slice(0, 10),
-        image: null,
-    });
+    const announcementForm = useForm({ ...emptyAnnouncement });
+
+    const resetAnnouncementForm = () => {
+        announcementForm.setData({ ...emptyAnnouncement });
+        announcementForm.clearErrors();
+        setEditingAnnouncementId(null);
+        setEditingAnnouncementImage(null);
+    };
+
+    const startEditAnnouncement = (item) => {
+        setEditingAnnouncementId(item.id);
+        setEditingAnnouncementImage(item.image_path || null);
+        announcementForm.setData({
+            title: item.title || '',
+            body: item.body || '',
+            type: item.type || 'info',
+            cta_label: item.cta_label || '',
+            cta_url: item.cta_url || '',
+            sort_order: item.sort_order ?? 0,
+            is_active: item.is_active !== false,
+            published_at: toDateInput(item.published_at),
+            image: null,
+        });
+        announcementForm.clearErrors();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const submitAnnouncement = (e) => {
+        e.preventDefault();
+        const options = {
+            forceFormData: true,
+            onSuccess: () => resetAnnouncementForm(),
+        };
+
+        if (editingAnnouncementId) {
+            announcementForm.post(`/admin/cms/announcements/${editingAnnouncementId}`, options);
+            return;
+        }
+
+        announcementForm.post('/admin/cms/announcements', options);
+    };
 
     const serviceForm = useForm({
         title: '',
@@ -224,26 +277,10 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
 
             {tab === 2 && (
                 <div className="grid gap-6 lg:grid-cols-2">
-                    <form
-                        className="surface-panel space-y-4 rounded-sm p-6"
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            announcementForm.post('/admin/cms/announcements', {
-                                forceFormData: true,
-                                onSuccess: () =>
-                                    announcementForm.reset(
-                                        'title',
-                                        'body',
-                                        'cta_label',
-                                        'cta_url',
-                                        'type',
-                                        'sort_order',
-                                        'image',
-                                    ),
-                            });
-                        }}
-                    >
-                        <h2 className="font-display text-2xl">Tambah berita singkat</h2>
+                    <form className="surface-panel space-y-4 rounded-sm p-6" onSubmit={submitAnnouncement}>
+                        <h2 className="font-display text-2xl">
+                            {editingAnnouncementId ? 'Edit berita singkat' : 'Tambah berita singkat'}
+                        </h2>
                         <p className="text-sm text-mist">
                             Promo, pengumuman, atau informasi penting yang tampil di landing page.
                         </p>
@@ -273,9 +310,19 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                                 onChange={(e) => announcementForm.setData('body', e.target.value)}
                             />
                         </Field>
+                        {editingAnnouncementImage && !announcementForm.data.image && (
+                            <div className="overflow-hidden rounded-sm border border-brass/20">
+                                <img
+                                    src={`/storage/${editingAnnouncementImage}`}
+                                    alt="Gambar saat ini"
+                                    className="aspect-[16/9] w-full object-cover"
+                                />
+                                <p className="px-3 py-2 text-xs text-mist">Gambar saat ini — pilih file baru untuk mengganti</p>
+                            </div>
+                        )}
                         <ImageFileInput
-                            label="Gambar (opsional)"
-                            buttonLabel="Pilih gambar"
+                            label={editingAnnouncementId ? 'Ganti gambar (opsional)' : 'Gambar (opsional)'}
+                            buttonLabel={editingAnnouncementId ? 'Ganti gambar' : 'Pilih gambar'}
                             file={announcementForm.data.image}
                             error={announcementForm.errors.image}
                             onChange={(file) => announcementForm.setData('image', file)}
@@ -323,16 +370,28 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                             />
                             Tampilkan di landing page
                         </label>
-                        <button type="submit" className={btnPrimary} disabled={announcementForm.processing}>
-                            Tambah berita
-                        </button>
+                        <div className="flex flex-wrap gap-3">
+                            <button type="submit" className={btnPrimary} disabled={announcementForm.processing}>
+                                {editingAnnouncementId ? 'Simpan perubahan' : 'Tambah berita'}
+                            </button>
+                            {editingAnnouncementId && (
+                                <button type="button" className={btnGhost} onClick={resetAnnouncementForm}>
+                                    Batal
+                                </button>
+                            )}
+                        </div>
                     </form>
                     <div className="space-y-3">
                         {announcements.length === 0 && (
                             <p className="surface-panel rounded-sm p-4 text-sm text-mist">Belum ada berita singkat.</p>
                         )}
                         {announcements.map((item) => (
-                            <div key={item.id} className="surface-panel overflow-hidden rounded-sm">
+                            <div
+                                key={item.id}
+                                className={`surface-panel overflow-hidden rounded-sm ${
+                                    editingAnnouncementId === item.id ? 'ring-1 ring-brass/50' : ''
+                                }`}
+                            >
                                 {item.image_path && (
                                     <img
                                         src={`/storage/${item.image_path}`}
@@ -357,13 +416,27 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                                             {item.cta_label ? ` · ${item.cta_label}` : ''}
                                         </p>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="shrink-0 text-xs text-danger"
-                                        onClick={() => router.delete(`/admin/cms/announcements/${item.id}`)}
-                                    >
-                                        Hapus
-                                    </button>
+                                    <div className="flex shrink-0 flex-col items-end gap-2">
+                                        <button
+                                            type="button"
+                                            className="text-xs text-brass-light hover:text-brass"
+                                            onClick={() => startEditAnnouncement(item)}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="text-xs text-danger"
+                                            onClick={() => {
+                                                if (editingAnnouncementId === item.id) {
+                                                    resetAnnouncementForm();
+                                                }
+                                                router.delete(`/admin/cms/announcements/${item.id}`);
+                                            }}
+                                        >
+                                            Hapus
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}

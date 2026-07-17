@@ -157,16 +157,29 @@ function Brand() {
 }
 
 function UserBlock({ auth, onNavigate }) {
+    const user = auth?.user;
+    const avatarUrl = user?.avatar_url;
+    const initials = user?.initials || 'A';
+
     return (
         <div className="border-t border-brass/10 px-5 py-4">
             <Link
                 href="/admin/profile"
                 onClick={onNavigate}
-                className="block hover:opacity-90"
+                className="flex items-center gap-3 hover:opacity-90"
             >
-                <p className="text-sm text-ivory">{auth?.user?.name}</p>
-                <p className="text-xs text-mist">{auth?.user?.email}</p>
-                <p className="mt-1 text-xs text-brass">Kelola akun</p>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brass/30 bg-steel/50 text-sm font-medium text-brass-light">
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt={user?.name || 'Admin'} className="h-full w-full object-cover" />
+                    ) : (
+                        <span>{initials}</span>
+                    )}
+                </div>
+                <div className="min-w-0">
+                    <p className="truncate text-sm text-ivory">{user?.name}</p>
+                    <p className="truncate text-xs text-mist">{user?.email}</p>
+                    <p className="mt-0.5 text-xs text-brass">Kelola akun</p>
+                </div>
             </Link>
             <button
                 type="button"
@@ -174,7 +187,7 @@ function UserBlock({ auth, onNavigate }) {
                     onNavigate?.();
                     router.post('/admin/logout');
                 }}
-                className="mt-3 text-sm text-danger hover:text-danger/80"
+                className="mt-3 w-full rounded-sm bg-danger px-3 py-2.5 text-sm font-medium text-ivory transition hover:bg-danger/85"
             >
                 Keluar
             </button>

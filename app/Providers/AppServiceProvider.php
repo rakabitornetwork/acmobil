@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->ensureAnnouncementImageColumn();
+        $this->ensureUserAvatarColumn();
     }
 
     /**
@@ -41,6 +42,25 @@ class AppServiceProvider extends ServiceProvider
 
             Schema::table('announcements', function (Blueprint $table) {
                 $table->string('image_path')->nullable()->after('body');
+            });
+        } catch (\Throwable) {
+            // Abaikan jika DB belum siap / read-only saat boot
+        }
+    }
+
+    private function ensureUserAvatarColumn(): void
+    {
+        try {
+            if (! Schema::hasTable('users')) {
+                return;
+            }
+
+            if (Schema::hasColumn('users', 'avatar_path')) {
+                return;
+            }
+
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('avatar_path')->nullable()->after('email');
             });
         } catch (\Throwable) {
             // Abaikan jika DB belum siap / read-only saat boot

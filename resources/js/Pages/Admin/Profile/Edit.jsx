@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Field, inputClass, btnPrimary } from '../../../Components/ui';
+import { Field, inputClass, btnPrimary, btnGhost, ImageFileInput } from '../../../Components/ui';
 
 export default function ProfileEdit({ user }) {
     const form = useForm({
@@ -9,7 +10,23 @@ export default function ProfileEdit({ user }) {
         current_password: '',
         password: '',
         password_confirmation: '',
+        avatar: null,
+        remove_avatar: false,
     });
+
+    const [localPreview, setLocalPreview] = useState(null);
+
+    useEffect(() => {
+        if (!form.data.avatar) {
+            setLocalPreview(null);
+            return undefined;
+        }
+        const url = URL.createObjectURL(form.data.avatar);
+        setLocalPreview(url);
+        return () => URL.revokeObjectURL(url);
+    }, [form.data.avatar]);
+
+    const previewUrl = localPreview || (form.data.remove_avatar ? null : user.avatar_url);
 
     return (
         <AdminLayout title="Akun Admin">
@@ -20,6 +37,7 @@ export default function ProfileEdit({ user }) {
                 onSubmit={(e) => {
                     e.preventDefault();
                     form.post('/admin/profile', {
+                        forceFormData: true,
                         preserveScroll: true,
                         onSuccess: () =>
                             form.setData({
@@ -27,13 +45,55 @@ export default function ProfileEdit({ user }) {
                                 current_password: '',
                                 password: '',
                                 password_confirmation: '',
+                                avatar: null,
+                                remove_avatar: false,
                             }),
                     });
                 }}
             >
                 <div>
                     <h2 className="font-display text-2xl text-ivory">Profil</h2>
-                    <p className="mt-1 text-sm text-mist">Ubah nama, email, dan password akun admin.</p>
+                    <p className="mt-1 text-sm text-mist">Ubah foto, nama, email, dan password akun admin.</p>
+                </div>
+
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brass/30 bg-steel/40 text-xl font-medium text-brass-light">
+                        {previewUrl ? (
+                            <img src={previewUrl} alt={user.name} className="h-full w-full object-cover" />
+                        ) : (
+                            <span>{user.initials || 'A'}</span>
+                        )}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-3">
+                        <ImageFileInput
+                            label="Foto profil"
+                            buttonLabel={previewUrl ? 'Ganti foto' : 'Pilih foto'}
+                            file={form.data.avatar}
+                            error={form.errors.avatar}
+                            onChange={(file) => {
+                                form.setData({
+                                    ...form.data,
+                                    avatar: file,
+                                    remove_avatar: false,
+                                });
+                            }}
+                        />
+                        {user.avatar_url && !form.data.remove_avatar && (
+                            <button
+                                type="button"
+                                className={`${btnGhost} !py-2 text-xs`}
+                                onClick={() =>
+                                    form.setData({
+                                        ...form.data,
+                                        avatar: null,
+                                        remove_avatar: true,
+                                    })
+                                }
+                            >
+                                Hapus foto
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <Field label="Nama" error={form.errors.name}>
