@@ -17,6 +17,20 @@ export function typeLabel(type) {
     );
 }
 
+export function statusLabel(status) {
+    return (
+        {
+            draft: 'Draf',
+            unpaid: 'Belum Lunas',
+            paid: 'Lunas',
+            cancelled: 'Dibatalkan',
+            pending: 'Menunggu',
+            in_progress: 'Dikerjakan',
+            done: 'Selesai',
+        }[status] || status || 'Semua'
+    );
+}
+
 export function statusBadge(status) {
     const map = {
         draft: 'bg-steel/50 text-mist',
@@ -27,19 +41,10 @@ export function statusBadge(status) {
         in_progress: 'bg-brass/15 text-brass-light',
         done: 'bg-success/15 text-success',
     };
-    const label = {
-        draft: 'Draft',
-        unpaid: 'Belum Lunas',
-        paid: 'Lunas',
-        cancelled: 'Dibatalkan',
-        pending: 'Menunggu',
-        in_progress: 'Dikerjakan',
-        done: 'Selesai',
-    }[status] || status;
 
     return (
         <span className={`inline-flex rounded-sm px-2 py-1 text-xs font-medium ${map[status] || 'bg-steel text-mist'}`}>
-            {label}
+            {statusLabel(status)}
         </span>
     );
 }

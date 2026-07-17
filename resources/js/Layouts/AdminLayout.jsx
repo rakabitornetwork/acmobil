@@ -9,6 +9,8 @@ const nav = [
     { href: '/admin/transactions', label: 'Transaksi' },
     { href: '/admin/work-orders', label: 'SPK' },
     { href: '/admin/mechanics', label: 'Mekanik' },
+    { href: '/admin/profile', label: 'Akun' },
+    { href: '/admin/system-update', label: 'Update' },
 ];
 
 function NavLinks({ path, onNavigate }) {
@@ -46,8 +48,15 @@ function Brand() {
 function UserBlock({ auth, onNavigate }) {
     return (
         <div className="border-t border-brass/10 px-5 py-4">
-            <p className="text-sm text-ivory">{auth?.user?.name}</p>
-            <p className="text-xs text-mist">{auth?.user?.email}</p>
+            <Link
+                href="/admin/profile"
+                onClick={onNavigate}
+                className="block hover:opacity-90"
+            >
+                <p className="text-sm text-ivory">{auth?.user?.name}</p>
+                <p className="text-xs text-mist">{auth?.user?.email}</p>
+                <p className="mt-1 text-xs text-brass">Kelola akun</p>
+            </Link>
             <button
                 type="button"
                 onClick={() => {

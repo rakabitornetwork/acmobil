@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { formatRupiah, statusBadge, btnPrimary } from '../../../Components/ui';
+import { formatRupiah, statusBadge, statusLabel, btnPrimary } from '../../../Components/ui';
 
 export default function TransactionsIndex({ transactions, filters }) {
     return (
@@ -17,7 +17,7 @@ export default function TransactionsIndex({ transactions, filters }) {
                                 (filters.status || '') === status ? 'bg-brass/20 text-brass-light' : 'text-mist'
                             }`}
                         >
-                            {status || 'Semua'}
+                            {statusLabel(status)}
                         </button>
                     ))}
                 </div>

@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { statusBadge, btnPrimary } from '../../../Components/ui';
+import { statusBadge, statusLabel, btnPrimary } from '../../../Components/ui';
 
 export default function WorkOrdersIndex({ workOrders, filters }) {
     return (
@@ -17,7 +17,7 @@ export default function WorkOrdersIndex({ workOrders, filters }) {
                                 (filters.status || '') === status ? 'bg-brass/20 text-brass-light' : 'text-mist'
                             }`}
                         >
-                            {status || 'Semua'}
+                            {statusLabel(status)}
                         </button>
                     ))}
                 </div>

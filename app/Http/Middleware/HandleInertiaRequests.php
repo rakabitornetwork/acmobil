@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
                 'otp' => fn () => $request->session()->get('otp'),
                 'otp_phone' => fn () => $request->session()->get('otp_phone'),
+                'deploy_logs' => fn () => $request->session()->get('deploy_logs'),
             ],
             'app' => [
                 'name' => config('app.name'),

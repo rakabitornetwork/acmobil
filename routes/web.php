@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MechanicController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\SystemUpdateController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\WorkOrderController;
 use App\Http\Controllers\Auth\AdminLoginController;
@@ -25,6 +27,13 @@ Route::post('/admin/logout', [AdminLoginController::class, 'destroy'])
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/system-update', [SystemUpdateController::class, 'index'])->name('system-update.index');
+    Route::post('/system-update/deploy', [SystemUpdateController::class, 'deploy'])->name('system-update.deploy');
+    Route::post('/system-update/discard-changes', [SystemUpdateController::class, 'discardChanges'])->name('system-update.discard');
 
     Route::get('/cms', [CmsController::class, 'edit'])->name('cms.edit');
     Route::post('/cms/settings', [CmsController::class, 'updateSettings'])->name('cms.settings');

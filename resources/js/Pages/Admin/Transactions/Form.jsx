@@ -76,7 +76,7 @@ export default function TransactionForm({ transaction, customers, catalog }) {
                     </Field>
                     <Field label="Status">
                         <select className={inputClass} value={form.data.status} onChange={(e) => form.setData('status', e.target.value)}>
-                            <option value="draft">Draft</option>
+                            <option value="draft">Draf</option>
                             <option value="unpaid">Belum Lunas</option>
                             <option value="paid">Lunas</option>
                             <option value="cancelled">Dibatalkan</option>
