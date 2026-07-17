@@ -63,7 +63,7 @@ function UserBlock({ auth, onNavigate }) {
                     onNavigate?.();
                     router.post('/admin/logout');
                 }}
-                className="mt-3 text-sm text-brass hover:text-brass-light"
+                className="mt-3 text-sm text-danger hover:text-danger/80"
             >
                 Keluar
             </button>
@@ -72,7 +72,7 @@ function UserBlock({ auth, onNavigate }) {
 }
 
 export default function AdminLayout({ children, title }) {
-    const { auth, flash } = usePage().props;
+    const { auth, flash, app } = usePage().props;
     const path = typeof window !== 'undefined' ? window.location.pathname : '';
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -96,16 +96,18 @@ export default function AdminLayout({ children, title }) {
     const closeMenu = () => setMenuOpen(false);
 
     return (
-        <div className="min-h-screen bg-obsidian text-ivory lg:flex">
-            {/* Desktop sidebar */}
-            <aside className="hidden border-r border-brass/10 bg-charcoal lg:flex lg:w-64 lg:flex-col">
-                <div className="px-5 py-6">
+        <div className="min-h-screen bg-obsidian text-ivory lg:flex lg:h-dvh lg:overflow-hidden">
+            {/* Desktop sidebar — tetap diam saat konten digulir */}
+            <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-brass/10 bg-charcoal lg:flex">
+                <div className="shrink-0 px-5 py-6">
                     <Brand />
                 </div>
-                <nav className="flex flex-1 flex-col gap-1 px-3 pb-4">
+                <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pb-4">
                     <NavLinks path={path} />
                 </nav>
-                <UserBlock auth={auth} />
+                <div className="shrink-0">
+                    <UserBlock auth={auth} />
+                </div>
             </aside>
 
             {/* Mobile drawer */}
@@ -126,7 +128,7 @@ export default function AdminLayout({ children, title }) {
                         menuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
                 >
-                    <div className="flex items-start justify-between px-5 py-6">
+                    <div className="flex shrink-0 items-start justify-between px-5 py-6">
                         <div>
                             <Brand />
                         </div>
@@ -141,15 +143,17 @@ export default function AdminLayout({ children, title }) {
                             </svg>
                         </button>
                     </div>
-                    <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-4">
+                    <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pb-4">
                         <NavLinks path={path} onNavigate={closeMenu} />
                     </nav>
-                    <UserBlock auth={auth} onNavigate={closeMenu} />
+                    <div className="shrink-0">
+                        <UserBlock auth={auth} onNavigate={closeMenu} />
+                    </div>
                 </aside>
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col">
-                <header className="flex items-center justify-between gap-4 border-b border-brass/10 px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto">
+                <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-brass/10 bg-obsidian/95 px-4 py-4 backdrop-blur-sm sm:px-6 sm:py-5">
                     <div className="flex min-w-0 items-center gap-3">
                         <button
                             type="button"
@@ -172,7 +176,7 @@ export default function AdminLayout({ children, title }) {
                         Keluar
                     </button>
                 </header>
-                <div className="px-4 py-6 sm:px-6">
+                <div className="flex-1 px-4 py-6 sm:px-6">
                     {flash?.success && (
                         <div className="mb-4 rounded-sm border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
                             {flash.success}
@@ -190,6 +194,14 @@ export default function AdminLayout({ children, title }) {
                     )}
                     {children}
                 </div>
+                <footer className="mt-auto border-t border-brass/10 px-4 py-4 sm:px-6">
+                    <div className="flex flex-col gap-1 text-xs text-mist sm:flex-row sm:items-center sm:justify-between">
+                        <p>
+                            © {new Date().getFullYear()} {app?.name || 'Berkah Teknik'}. Seluruh hak cipta dilindungi.
+                        </p>
+                        <p className="text-mist/80">Panel Admin</p>
+                    </div>
+                </footer>
             </div>
         </div>
     );
