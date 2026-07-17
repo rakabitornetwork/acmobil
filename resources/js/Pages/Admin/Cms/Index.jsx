@@ -1,11 +1,24 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Field, inputClass, btnPrimary, btnGhost, typeLabel } from '../../../Components/ui';
+import { Field, inputClass, btnPrimary, typeLabel } from '../../../Components/ui';
 
-const tabs = ['Pengaturan', 'Hero & Tentang', 'Layanan', 'Galeri', 'Testimoni'];
+const tabs = ['Pengaturan', 'Hero & Tentang', 'Berita', 'Layanan', 'Galeri', 'Testimoni'];
 
-export default function CmsIndex({ settings, hero, about, services, gallery, testimonials }) {
+function formatDate(value) {
+    if (!value) return '';
+    try {
+        return new Date(value).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        });
+    } catch {
+        return value;
+    }
+}
+
+export default function CmsIndex({ settings, hero, about, services, gallery, testimonials, announcements = [] }) {
     const [tab, setTab] = useState(0);
 
     const settingsForm = useForm({
@@ -34,6 +47,17 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
         subtitle: about?.subtitle || '',
         body: about?.body || '',
         image: null,
+    });
+
+    const announcementForm = useForm({
+        title: '',
+        body: '',
+        type: 'info',
+        cta_label: '',
+        cta_url: '',
+        sort_order: 0,
+        is_active: true,
+        published_at: new Date().toISOString().slice(0, 10),
     });
 
     const serviceForm = useForm({
@@ -203,6 +227,137 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                         className="surface-panel space-y-4 rounded-sm p-6"
                         onSubmit={(e) => {
                             e.preventDefault();
+                            announcementForm.post('/admin/cms/announcements', {
+                                onSuccess: () =>
+                                    announcementForm.reset(
+                                        'title',
+                                        'body',
+                                        'cta_label',
+                                        'cta_url',
+                                        'type',
+                                        'sort_order',
+                                    ),
+                            });
+                        }}
+                    >
+                        <h2 className="font-display text-2xl">Tambah berita singkat</h2>
+                        <p className="text-sm text-mist">
+                            Promo, pengumuman, atau informasi penting yang tampil di landing page.
+                        </p>
+                        <Field label="Judul" error={announcementForm.errors.title}>
+                            <input
+                                className={inputClass}
+                                value={announcementForm.data.title}
+                                onChange={(e) => announcementForm.setData('title', e.target.value)}
+                            />
+                        </Field>
+                        <Field label="Jenis" error={announcementForm.errors.type}>
+                            <select
+                                className={inputClass}
+                                value={announcementForm.data.type}
+                                onChange={(e) => announcementForm.setData('type', e.target.value)}
+                            >
+                                <option value="info">Informasi</option>
+                                <option value="promo">Promo</option>
+                                <option value="urgent">Penting</option>
+                            </select>
+                        </Field>
+                        <Field label="Isi singkat" error={announcementForm.errors.body}>
+                            <textarea
+                                className={inputClass}
+                                rows={4}
+                                value={announcementForm.data.body}
+                                onChange={(e) => announcementForm.setData('body', e.target.value)}
+                            />
+                        </Field>
+                        <Field label="Label tombol (opsional)" error={announcementForm.errors.cta_label}>
+                            <input
+                                className={inputClass}
+                                placeholder="Contoh: Hubungi WhatsApp"
+                                value={announcementForm.data.cta_label}
+                                onChange={(e) => announcementForm.setData('cta_label', e.target.value)}
+                            />
+                        </Field>
+                        <Field label="URL tombol (opsional)" error={announcementForm.errors.cta_url}>
+                            <input
+                                className={inputClass}
+                                placeholder="https://wa.me/..."
+                                value={announcementForm.data.cta_url}
+                                onChange={(e) => announcementForm.setData('cta_url', e.target.value)}
+                            />
+                        </Field>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Field label="Tanggal tayang" error={announcementForm.errors.published_at}>
+                                <input
+                                    type="date"
+                                    className={inputClass}
+                                    value={announcementForm.data.published_at}
+                                    onChange={(e) => announcementForm.setData('published_at', e.target.value)}
+                                />
+                            </Field>
+                            <Field label="Urutan" error={announcementForm.errors.sort_order}>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className={inputClass}
+                                    value={announcementForm.data.sort_order}
+                                    onChange={(e) => announcementForm.setData('sort_order', Number(e.target.value))}
+                                />
+                            </Field>
+                        </div>
+                        <label className="flex items-center gap-2 text-sm text-mist">
+                            <input
+                                type="checkbox"
+                                checked={announcementForm.data.is_active}
+                                onChange={(e) => announcementForm.setData('is_active', e.target.checked)}
+                            />
+                            Tampilkan di landing page
+                        </label>
+                        <button type="submit" className={btnPrimary} disabled={announcementForm.processing}>
+                            Tambah berita
+                        </button>
+                    </form>
+                    <div className="space-y-3">
+                        {announcements.length === 0 && (
+                            <p className="surface-panel rounded-sm p-4 text-sm text-mist">Belum ada berita singkat.</p>
+                        )}
+                        {announcements.map((item) => (
+                            <div key={item.id} className="surface-panel flex items-start justify-between gap-3 rounded-sm p-4">
+                                <div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <p className="text-ivory">{item.title}</p>
+                                        <span className="rounded-sm bg-brass/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-brass">
+                                            {typeLabel(item.type)}
+                                        </span>
+                                        {!item.is_active && (
+                                            <span className="text-[10px] uppercase tracking-wider text-danger">Nonaktif</span>
+                                        )}
+                                    </div>
+                                    {item.body && <p className="mt-1 text-sm text-mist">{item.body}</p>}
+                                    <p className="mt-2 text-xs text-mist/70">
+                                        {formatDate(item.published_at)}
+                                        {item.cta_label ? ` · ${item.cta_label}` : ''}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="shrink-0 text-xs text-danger"
+                                    onClick={() => router.delete(`/admin/cms/announcements/${item.id}`)}
+                                >
+                                    Hapus
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {tab === 3 && (
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <form
+                        className="surface-panel space-y-4 rounded-sm p-6"
+                        onSubmit={(e) => {
+                            e.preventDefault();
                             serviceForm.post('/admin/cms/services', {
                                 forceFormData: true,
                                 onSuccess: () => serviceForm.reset('title', 'description', 'price_label'),
@@ -252,7 +407,7 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                 </div>
             )}
 
-            {tab === 3 && (
+            {tab === 4 && (
                 <div className="grid gap-6 lg:grid-cols-2">
                     <form
                         className="surface-panel space-y-4 rounded-sm p-6"
@@ -291,7 +446,7 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                 </div>
             )}
 
-            {tab === 4 && (
+            {tab === 5 && (
                 <div className="grid gap-6 lg:grid-cols-2">
                     <form
                         className="surface-panel space-y-4 rounded-sm p-6"

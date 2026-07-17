@@ -7,7 +7,13 @@ function storageUrl(path) {
     return `/storage/${path}`;
 }
 
-export default function Home({ settings, hero, about, services, gallery, testimonials }) {
+function typeMeta(type) {
+    if (type === 'promo') return { label: 'Promo', className: 'text-brass' };
+    if (type === 'urgent') return { label: 'Penting', className: 'text-danger' };
+    return { label: 'Informasi', className: 'text-brass-light' };
+}
+
+export default function Home({ settings, hero, about, announcements = [], services, gallery, testimonials }) {
     const company = settings?.company_name || 'Berkah Teknik';
     const wa = settings?.whatsapp ? `https://wa.me/${settings.whatsapp}` : hero?.cta_url;
 
@@ -61,6 +67,50 @@ export default function Home({ settings, hero, about, services, gallery, testimo
                     <p className="text-lg leading-relaxed text-mist">{about?.body}</p>
                 </div>
             </section>
+
+            {announcements.length > 0 && (
+                <section id="berita" className="border-t border-brass/10">
+                    <div className="mx-auto max-w-6xl px-6 py-24">
+                        <p className="text-xs uppercase tracking-[0.3em] text-brass">Berita singkat</p>
+                        <h2 className="mt-3 font-display text-4xl text-ivory sm:text-5xl">Promo & informasi penting</h2>
+                        <div className="mt-14 space-y-8">
+                            {announcements.map((item) => {
+                                const meta = typeMeta(item.type);
+                                return (
+                                    <article key={item.id} className="border-t border-brass/20 pt-6">
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <p className={`text-xs uppercase tracking-[0.25em] ${meta.className}`}>
+                                                {meta.label}
+                                            </p>
+                                            {item.published_at && (
+                                                <p className="text-xs text-mist">
+                                                    {new Date(item.published_at).toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                    })}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <h3 className="mt-3 font-display text-3xl text-ivory">{item.title}</h3>
+                                        {item.body && <p className="mt-3 max-w-3xl text-mist">{item.body}</p>}
+                                        {item.cta_label && item.cta_url && (
+                                            <a
+                                                href={item.cta_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="mt-5 inline-block text-sm text-brass-light underline-offset-4 hover:text-brass hover:underline"
+                                            >
+                                                {item.cta_label}
+                                            </a>
+                                        )}
+                                    </article>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             <section id="layanan" className="border-t border-brass/10">
                 <div className="mx-auto max-w-6xl px-6 py-24">

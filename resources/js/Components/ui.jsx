@@ -13,6 +13,9 @@ export function typeLabel(type) {
             sparepart: 'Sparepart',
             tool_rental: 'Sewa Alat',
             workmanship: 'Jasa Pengerjaan',
+            info: 'Informasi',
+            promo: 'Promo',
+            urgent: 'Penting',
         }[type] || type
     );
 }

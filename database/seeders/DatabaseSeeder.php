@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Announcement;
 use App\Models\CatalogItem;
 use App\Models\Customer;
 use App\Models\Mechanic;
@@ -123,6 +124,35 @@ class DatabaseSeeder extends Seeder
             Testimonial::query()->updateOrCreate(
                 ['name' => $item['name']],
                 $item + ['is_active' => true]
+            );
+        }
+
+        $announcements = [
+            [
+                'title' => 'Promo cuci evaporator + isi freon',
+                'body' => 'Paket hemat perawatan AC mobil sepanjang bulan ini. Booking via WhatsApp untuk jadwal prioritas.',
+                'type' => 'promo',
+                'cta_label' => 'Booking via WhatsApp',
+                'cta_url' => 'https://wa.me/6281234567890',
+                'sort_order' => 1,
+            ],
+            [
+                'title' => 'Jam operasional libur nasional',
+                'body' => 'Bengkel tutup pada hari libur nasional. Untuk keadaan darurat, hubungi nomor WhatsApp kami.',
+                'type' => 'info',
+                'cta_label' => null,
+                'cta_url' => null,
+                'sort_order' => 2,
+            ],
+        ];
+
+        foreach ($announcements as $item) {
+            Announcement::query()->updateOrCreate(
+                ['title' => $item['title']],
+                $item + [
+                    'is_active' => true,
+                    'published_at' => now(),
+                ]
             );
         }
 

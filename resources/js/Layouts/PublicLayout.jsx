@@ -12,6 +12,9 @@ export default function PublicLayout({ children }) {
                         {name}
                     </Link>
                     <nav className="flex items-center gap-6 text-sm text-mist">
+                        <a href="/#berita" className="hidden hover:text-ivory sm:inline">
+                            Berita
+                        </a>
                         <a href="/#layanan" className="hidden hover:text-ivory sm:inline">
                             Layanan
                         </a>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use App\Models\GalleryItem;
 use App\Models\PageSection;
 use App\Models\Service;
@@ -24,6 +25,7 @@ class CmsController extends Controller
             'services' => Service::query()->orderBy('sort_order')->get(),
             'gallery' => GalleryItem::query()->orderBy('sort_order')->get(),
             'testimonials' => Testimonial::query()->orderBy('sort_order')->get(),
+            'announcements' => Announcement::query()->orderBy('sort_order')->orderByDesc('published_at')->get(),
         ]);
     }
 
@@ -199,5 +201,57 @@ class CmsController extends Controller
         $testimonial->delete();
 
         return back()->with('success', 'Testimoni dihapus.');
+    }
+
+    public function storeAnnouncement(Request $request)
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:180'],
+            'body' => ['nullable', 'string'],
+            'type' => ['required', 'in:info,promo,urgent'],
+            'cta_label' => ['nullable', 'string', 'max:120'],
+            'cta_url' => ['nullable', 'string', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['boolean'],
+            'published_at' => ['nullable', 'date'],
+        ]);
+
+        Announcement::query()->create([
+            ...$data,
+            'is_active' => $request->boolean('is_active', true),
+            'published_at' => $data['published_at'] ?? now(),
+            'sort_order' => $data['sort_order'] ?? 0,
+        ]);
+
+        return back()->with('success', 'Berita singkat ditambahkan.');
+    }
+
+    public function updateAnnouncement(Request $request, Announcement $announcement)
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:180'],
+            'body' => ['nullable', 'string'],
+            'type' => ['required', 'in:info,promo,urgent'],
+            'cta_label' => ['nullable', 'string', 'max:120'],
+            'cta_url' => ['nullable', 'string', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['boolean'],
+            'published_at' => ['nullable', 'date'],
+        ]);
+
+        $announcement->update([
+            ...$data,
+            'is_active' => $request->boolean('is_active'),
+            'sort_order' => $data['sort_order'] ?? 0,
+        ]);
+
+        return back()->with('success', 'Berita singkat diperbarui.');
+    }
+
+    public function destroyAnnouncement(Announcement $announcement)
+    {
+        $announcement->delete();
+
+        return back()->with('success', 'Berita singkat dihapus.');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\GalleryItem;
 use App\Models\PageSection;
 use App\Models\Service;
@@ -21,6 +22,11 @@ class LandingController extends Controller
             'settings' => $settings,
             'hero' => $sections->get('hero'),
             'about' => $sections->get('about'),
+            'announcements' => Announcement::query()
+                ->published()
+                ->orderBy('sort_order')
+                ->orderByDesc('published_at')
+                ->get(),
             'services' => Service::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'gallery' => GalleryItem::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'testimonials' => Testimonial::query()->where('is_active', true)->orderBy('sort_order')->get(),

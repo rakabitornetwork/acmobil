@@ -46,6 +46,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/cms/testimonials', [CmsController::class, 'storeTestimonial'])->name('cms.testimonials.store');
     Route::post('/cms/testimonials/{testimonial}', [CmsController::class, 'updateTestimonial'])->name('cms.testimonials.update');
     Route::delete('/cms/testimonials/{testimonial}', [CmsController::class, 'destroyTestimonial'])->name('cms.testimonials.destroy');
+    Route::post('/cms/announcements', [CmsController::class, 'storeAnnouncement'])->name('cms.announcements.store');
+    Route::post('/cms/announcements/{announcement}', [CmsController::class, 'updateAnnouncement'])->name('cms.announcements.update');
+    Route::delete('/cms/announcements/{announcement}', [CmsController::class, 'destroyAnnouncement'])->name('cms.announcements.destroy');
 
     Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
     Route::post('/catalog', [CatalogController::class, 'store'])->name('catalog.store');
