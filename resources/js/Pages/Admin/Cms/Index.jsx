@@ -1,7 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Field, inputClass, btnPrimary, typeLabel } from '../../../Components/ui';
+import { Field, inputClass, btnPrimary, typeLabel, ImageFileInput } from '../../../Components/ui';
 
 const tabs = ['Pengaturan', 'Hero & Tentang', 'Berita', 'Layanan', 'Galeri', 'Testimoni'];
 
@@ -273,14 +273,13 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                                 onChange={(e) => announcementForm.setData('body', e.target.value)}
                             />
                         </Field>
-                        <Field label="Gambar (opsional)" error={announcementForm.errors.image}>
-                            <input
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp"
-                                onChange={(e) => announcementForm.setData('image', e.target.files[0])}
-                            />
-                            <p className="mt-1 text-xs text-mist">JPG, PNG, atau WebP · maks. 4 MB</p>
-                        </Field>
+                        <ImageFileInput
+                            label="Gambar (opsional)"
+                            buttonLabel="Pilih gambar"
+                            file={announcementForm.data.image}
+                            error={announcementForm.errors.image}
+                            onChange={(file) => announcementForm.setData('image', file)}
+                        />
                         <Field label="Label tombol (opsional)" error={announcementForm.errors.cta_label}>
                             <input
                                 className={inputClass}

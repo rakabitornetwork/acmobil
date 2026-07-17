@@ -105,6 +105,40 @@ export function Field({ label, error, children }) {
     );
 }
 
+export function ImageFileInput({
+    label = 'Gambar',
+    file = null,
+    accept = 'image/jpeg,image/png,image/webp',
+    hint = 'JPG, PNG, atau WebP · maks. 4 MB',
+    error,
+    onChange,
+    buttonLabel = 'Pilih gambar',
+}) {
+    const inputId = `file-${label.replace(/\s+/g, '-').toLowerCase()}`;
+    const fileName = file?.name || null;
+
+    return (
+        <div className="block space-y-1.5">
+            <span className="text-xs uppercase tracking-wider text-mist">{label}</span>
+            <div className="flex flex-wrap items-center gap-3">
+                <label htmlFor={inputId} className={`${btnGhost} cursor-pointer`}>
+                    {buttonLabel}
+                </label>
+                <input
+                    id={inputId}
+                    type="file"
+                    accept={accept}
+                    className="sr-only"
+                    onChange={(e) => onChange?.(e.target.files?.[0] || null)}
+                />
+                <span className="text-sm text-mist">{fileName || 'Belum ada file dipilih'}</span>
+            </div>
+            {hint && <p className="text-xs text-mist/80">{hint}</p>}
+            {error && <span className="block text-xs text-danger">{error}</span>}
+        </div>
+    );
+}
+
 export const inputClass =
     'w-full rounded-sm border border-steel bg-obsidian px-3 py-2.5 text-sm text-ivory outline-none transition focus:border-brass/50';
 
