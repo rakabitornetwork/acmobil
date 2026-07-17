@@ -1,7 +1,8 @@
 /.phpunit.cache
 /node_modules
 /public/hot
-/public/storage
+/public/storage/*
+!/public/storage/.gitignore
 # Symlink Apache root → public/build (buat di server: ln -sfn public/build build)
 /build
 /storage/*.key

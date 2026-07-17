@@ -5,8 +5,8 @@
 
     RewriteEngine On
 
-    # Serve public uploads without relying on mismatched symlink ownership (Virtualmin SymLinksIfOwnerMatch)
-    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+    # Serve public uploads (folder nyata public/storage — tanpa symlink)
+    RewriteRule ^storage/(.*)$ public/storage/$1 [L]
     RewriteRule ^build/(.*)$ public/build/$1 [L]
 
     # Handle Authorization Header

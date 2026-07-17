@@ -41,10 +41,10 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            // Folder nyata di dalam document root — menghindari symlink Virtualmin
+            'root' => public_path('storage'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
-            'serve' => true,
             'throw' => false,
             'report' => false,
         ],
@@ -76,7 +76,7 @@ return [
     */
 
     'links' => [
-        public_path('storage') => storage_path('app/public'),
+        // Kosong: upload disimpan langsung di public/storage (tanpa symlink).
     ],
 
 ];
