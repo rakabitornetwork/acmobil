@@ -10,6 +10,7 @@ class Announcement extends Model
     protected $fillable = [
         'title',
         'body',
+        'image_path',
         'type',
         'cta_label',
         'cta_url',

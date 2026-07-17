@@ -58,6 +58,7 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
         sort_order: 0,
         is_active: true,
         published_at: new Date().toISOString().slice(0, 10),
+        image: null,
     });
 
     const serviceForm = useForm({
@@ -228,6 +229,7 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                         onSubmit={(e) => {
                             e.preventDefault();
                             announcementForm.post('/admin/cms/announcements', {
+                                forceFormData: true,
                                 onSuccess: () =>
                                     announcementForm.reset(
                                         'title',
@@ -236,6 +238,7 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                                         'cta_url',
                                         'type',
                                         'sort_order',
+                                        'image',
                                     ),
                             });
                         }}
@@ -269,6 +272,14 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                                 value={announcementForm.data.body}
                                 onChange={(e) => announcementForm.setData('body', e.target.value)}
                             />
+                        </Field>
+                        <Field label="Gambar (opsional)" error={announcementForm.errors.image}>
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => announcementForm.setData('image', e.target.files[0])}
+                            />
+                            <p className="mt-1 text-xs text-mist">JPG, PNG, atau WebP · maks. 4 MB</p>
                         </Field>
                         <Field label="Label tombol (opsional)" error={announcementForm.errors.cta_label}>
                             <input
@@ -322,30 +333,39 @@ export default function CmsIndex({ settings, hero, about, services, gallery, tes
                             <p className="surface-panel rounded-sm p-4 text-sm text-mist">Belum ada berita singkat.</p>
                         )}
                         {announcements.map((item) => (
-                            <div key={item.id} className="surface-panel flex items-start justify-between gap-3 rounded-sm p-4">
-                                <div>
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <p className="text-ivory">{item.title}</p>
-                                        <span className="rounded-sm bg-brass/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-brass">
-                                            {typeLabel(item.type)}
-                                        </span>
-                                        {!item.is_active && (
-                                            <span className="text-[10px] uppercase tracking-wider text-danger">Nonaktif</span>
-                                        )}
+                            <div key={item.id} className="surface-panel overflow-hidden rounded-sm">
+                                {item.image_path && (
+                                    <img
+                                        src={`/storage/${item.image_path}`}
+                                        alt={item.title}
+                                        className="aspect-[16/9] w-full object-cover"
+                                    />
+                                )}
+                                <div className="flex items-start justify-between gap-3 p-4">
+                                    <div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="text-ivory">{item.title}</p>
+                                            <span className="rounded-sm bg-brass/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-brass">
+                                                {typeLabel(item.type)}
+                                            </span>
+                                            {!item.is_active && (
+                                                <span className="text-[10px] uppercase tracking-wider text-danger">Nonaktif</span>
+                                            )}
+                                        </div>
+                                        {item.body && <p className="mt-1 text-sm text-mist">{item.body}</p>}
+                                        <p className="mt-2 text-xs text-mist/70">
+                                            {formatDate(item.published_at)}
+                                            {item.cta_label ? ` · ${item.cta_label}` : ''}
+                                        </p>
                                     </div>
-                                    {item.body && <p className="mt-1 text-sm text-mist">{item.body}</p>}
-                                    <p className="mt-2 text-xs text-mist/70">
-                                        {formatDate(item.published_at)}
-                                        {item.cta_label ? ` · ${item.cta_label}` : ''}
-                                    </p>
+                                    <button
+                                        type="button"
+                                        className="shrink-0 text-xs text-danger"
+                                        onClick={() => router.delete(`/admin/cms/announcements/${item.id}`)}
+                                    >
+                                        Hapus
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    className="shrink-0 text-xs text-danger"
-                                    onClick={() => router.delete(`/admin/cms/announcements/${item.id}`)}
-                                >
-                                    Hapus
-                                </button>
                             </div>
                         ))}
                     </div>

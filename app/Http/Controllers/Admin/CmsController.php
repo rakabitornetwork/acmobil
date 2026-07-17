@@ -214,14 +214,23 @@ class CmsController extends Controller
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
             'published_at' => ['nullable', 'date'],
+            'image' => ['nullable', 'image', 'max:4096', 'mimes:jpg,jpeg,png,webp'],
         ]);
 
-        Announcement::query()->create([
+        unset($data['image']);
+
+        $announcement = Announcement::query()->create([
             ...$data,
             'is_active' => $request->boolean('is_active', true),
             'published_at' => $data['published_at'] ?? now(),
             'sort_order' => $data['sort_order'] ?? 0,
         ]);
+
+        if ($request->hasFile('image')) {
+            $announcement->update([
+                'image_path' => $request->file('image')->store('cms', 'public'),
+            ]);
+        }
 
         return back()->with('success', 'Berita singkat ditambahkan.');
     }
@@ -237,7 +246,10 @@ class CmsController extends Controller
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
             'published_at' => ['nullable', 'date'],
+            'image' => ['nullable', 'image', 'max:4096', 'mimes:jpg,jpeg,png,webp'],
         ]);
+
+        unset($data['image']);
 
         $announcement->update([
             ...$data,
@@ -245,11 +257,23 @@ class CmsController extends Controller
             'sort_order' => $data['sort_order'] ?? 0,
         ]);
 
+        if ($request->hasFile('image')) {
+            if ($announcement->image_path) {
+                Storage::disk('public')->delete($announcement->image_path);
+            }
+            $announcement->update([
+                'image_path' => $request->file('image')->store('cms', 'public'),
+            ]);
+        }
+
         return back()->with('success', 'Berita singkat diperbarui.');
     }
 
     public function destroyAnnouncement(Announcement $announcement)
     {
+        if ($announcement->image_path) {
+            Storage::disk('public')->delete($announcement->image_path);
+        }
         $announcement->delete();
 
         return back()->with('success', 'Berita singkat dihapus.');
