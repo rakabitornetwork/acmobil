@@ -344,13 +344,6 @@ export default function AdminLayout({ children, title }) {
                         </button>
                         <h1 className="truncate font-display text-2xl text-ivory sm:text-3xl">{title}</h1>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => router.post('/admin/logout')}
-                        className="shrink-0 text-sm text-mist hover:text-ivory lg:hidden"
-                    >
-                        Keluar
-                    </button>
                 </header>
                 <div className="flex-1 px-4 py-6 sm:px-6">
                     {flash?.success && (
