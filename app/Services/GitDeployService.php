@@ -90,8 +90,8 @@ class GitDeployService
 
     public function deploy(array $options = []): array
     {
-        $runComposer = $options['composer'] ?? true;
-        $runMigrate = $options['migrate'] ?? true;
+        $runComposer = $options['composer'] ?? false;
+        $runMigrate = $options['migrate'] ?? false;
         $runNpm = $options['npm'] ?? false;
         $runOptimize = $options['optimize'] ?? true;
 

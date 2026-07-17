@@ -38,8 +38,8 @@ class SystemUpdateController extends Controller
         ]);
 
         $result = $deploy->deploy([
-            'composer' => $request->boolean('run_composer', true),
-            'migrate' => $request->boolean('run_migrate', true),
+            'composer' => $request->boolean('run_composer', false),
+            'migrate' => $request->boolean('run_migrate', false),
             'npm' => $request->boolean('run_npm', false),
             'optimize' => $request->boolean('run_optimize', true),
         ]);
