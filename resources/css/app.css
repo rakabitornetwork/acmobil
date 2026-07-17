@@ -1,0 +1,96 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.{js,jsx}';
+
+@theme {
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
+
+    --color-obsidian: #0b0f14;
+    --color-charcoal: #141a22;
+    --color-slate-panel: #1b2330;
+    --color-steel: #2a3444;
+    --color-mist: #8b95a5;
+    --color-ivory: #f3efe6;
+    --color-brass: #c4a574;
+    --color-brass-light: #dbbf8f;
+    --color-brass-dark: #9a7d4f;
+    --color-success: #5e9e7e;
+    --color-warning: #c9a227;
+    --color-danger: #c45c5c;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-obsidian text-ivory font-sans;
+    }
+
+    ::selection {
+        background: color-mix(in srgb, var(--color-brass) 40%, transparent);
+        color: var(--color-ivory);
+    }
+}
+
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .gold-hairline {
+        background: linear-gradient(
+            90deg,
+            transparent,
+            color-mix(in srgb, var(--color-brass) 70%, transparent),
+            transparent
+        );
+    }
+
+    .surface-panel {
+        background: linear-gradient(160deg, #161d28 0%, #10161e 100%);
+        border: 1px solid color-mix(in srgb, var(--color-brass) 18%, transparent);
+    }
+
+    .hero-atmosphere {
+        background:
+            radial-gradient(ellipse 80% 60% at 70% 40%, rgba(196, 165, 116, 0.12), transparent 55%),
+            radial-gradient(ellipse 50% 40% at 20% 80%, rgba(42, 52, 68, 0.8), transparent 50%),
+            linear-gradient(180deg, #0b0f14 0%, #121820 50%, #0b0f14 100%);
+    }
+
+    .reveal {
+        animation: reveal-up 0.8s ease-out both;
+    }
+
+    .reveal-delay-1 {
+        animation-delay: 0.12s;
+    }
+
+    .reveal-delay-2 {
+        animation-delay: 0.24s;
+    }
+
+    .reveal-delay-3 {
+        animation-delay: 0.36s;
+    }
+}
+
+@keyframes reveal-up {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
